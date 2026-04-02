@@ -1,0 +1,747 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Calendar</title>
+ <style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+  }
+
+  .calendar {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .calendar-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .month-picker-wrap {
+    position: relative;
+    justify-self: center;
+  }
+  .calendar-header .month-year-btn {
+    border: none !important;
+    background: transparent !important;
+    color: #1f2d3f !important;
+    font-size: 42px !important;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 !important;
+    line-height: 1.1;
+    box-shadow: none !important;
+  }
+  .calendar-header .month-year-btn:hover {
+    color: #0f4f8f !important;
+    transform: none !important;
+  }
+  .month-picker-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.92);
+    opacity: 0;
+    pointer-events: none;
+    width: 290px;
+    background: #ffffff;
+    border: 1px solid #d3e0f0;
+    border-radius: 12px;
+    box-shadow: 0 14px 28px rgba(12, 46, 82, 0.2);
+    padding: 10px;
+    z-index: 30;
+    transition: all 0.18s ease;
+  }
+  .month-picker-popover.open {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+    pointer-events: auto;
+  }
+  .month-picker-header {
+    display: grid;
+    grid-template-columns: 34px 1fr 34px;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  #monthPickerYear {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #274160;
+  }
+  .calendar-header .month-year-nav {
+    border: 1px solid #c9daee !important;
+    background: #f5faff !important;
+    color: #1a5d9d !important;
+    border-radius: 8px;
+    width: 34px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .calendar-header .month-year-nav:hover {
+    background: #eaf4ff !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .month-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  .calendar-header .month-item {
+    border: 1px solid #d4e1f2 !important;
+    background: #ffffff !important;
+    color: #27405f !important;
+    border-radius: 8px;
+    padding: 7px 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .calendar-header .month-item:hover {
+    background: #edf5ff !important;
+    border-color: #bdd1ea !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .calendar-header .month-item.active {
+    background: #fff6b8 !important;
+    border-color: #e8dc8c !important;
+    color: #3b3411 !important;
+  }
+
+  .calendar-header button {
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+  .calendar-header button:hover {
+    background-color: #0f74cc;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(17, 86, 153, 0.25);
+  }
+  .calendar-header button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(17, 86, 153, 0.2);
+  }
+  .calendar-header button:focus-visible {
+    outline: 2px solid #8ec5ff;
+    outline-offset: 1px;
+  }
+  .calendar-nav-group {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    justify-self: end;
+  }
+  .calendar-header-spacer {
+    justify-self: start;
+    width: 1px;
+    height: 1px;
+  }
+
+  .nav-icon-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    color: #1b5f9f !important;
+    border: 1px solid #c9dbef !important;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-icon-btn:hover {
+    background: #edf5ff !important;
+    border-color: #a9c5e7 !important;
+    color: #0f4f8f !important;
+    box-shadow: 0 5px 12px rgba(17, 86, 153, 0.16);
+  }
+
+  .calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-gap: 5px;
+  }
+
+  /* Month transition animation */
+  #calendarDays.month-slide-left {
+    animation: monthSlideLeft 0.28s ease;
+  }
+
+  #calendarDays.month-slide-right {
+    animation: monthSlideRight 0.28s ease;
+  }
+
+  @keyframes monthSlideLeft {
+    0% {
+      opacity: 0.15;
+      transform: translateX(26px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes monthSlideRight {
+    0% {
+      opacity: 0.15;
+      transform: translateX(-26px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .calendar-day,
+  .day-header {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 4px;
+  }
+
+  .calendar-day:hover {
+    background-color: #e3f2fd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .today {
+    background-color: #ffeb3b;
+    color: #000;
+    font-weight: bold;
+  }
+
+  .day-header {
+    background-color: #ddd;
+    font-weight: bold;
+    cursor: default;
+  }
+
+  /* à¹à¸ªà¸”à¸‡à¹„à¸­à¸„à¸­à¸™à¸«à¸™à¸±à¸‡à¸ªà¸·à¸­à¹€à¸¡à¸·à¹ˆà¸­à¸¡à¸µà¸‡à¸²à¸™ */
+  .has-event::after {
+    content: '\1F4D6';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    color: #4CAF50;
+  }
+
+  /* à¸ªà¸µà¸žà¸·à¹‰à¸™à¸«à¸¥à¸±à¸‡à¸‚à¸­à¸‡à¸§à¸±à¸™ Unavailable */
+  .unavailable-day {
+    background-color: #fff3cd;
+    border: 2px solid #ffc107;
+  }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(7, 22, 41, 0.55);
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+
+  .modal-content {
+    background-color: #ffffff;
+    margin: 0 auto;
+    padding: 16px;
+    border: 1px solid #d8e2ee;
+    width: 92%;
+    max-width: 980px;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgba(0, 12, 30, 0.28);
+    max-height: 88vh;
+    overflow: auto;
+  }
+
+  .modal-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  #modalText {
+    margin: 0;
+    color: #0d2f53;
+    font-size: 20px;
+  }
+
+  .modal-actions {
+    display: inline-flex;
+    gap: 8px;
+  }
+
+  .close,
+  .refresh {
+    border: 1px solid #c8d7ea;
+    background: #f7fbff;
+    color: #0f4f8f;
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  .close:hover,
+  .refresh:hover {
+    background: #e8f2ff;
+    transform: translateY(-1px);
+  }
+
+  #eventTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    border: 1px solid #d9e5f2;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #eventTable th,
+  #eventTable td {
+    border: 1px solid #e2eaf4;
+    padding: 9px 8px;
+    text-align: center;
+  }
+
+  #eventTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #1e73be;
+    color: white;
+    font-size: 12px;
+    letter-spacing: 0.4px;
+  }
+
+  #eventTable td {
+    background-color: #fff;
+    color: #333;
+    font-size: 12px;
+  }
+
+  #eventTable tbody tr:nth-child(even) td {
+    background-color: #f9f9f9;
+  }
+
+  /* Loading Spinner Styles */
+  .spinner {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 50%;
+    left: 50%;
+    margin-top: -60px;
+    margin-left: -60px;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* à¸¥à¸”à¸‚à¸™à¸²à¸”à¸Ÿà¸­à¸™à¸•à¹Œà¹€à¸‰à¸žà¸²à¸° modal à¸•à¸²à¸£à¸²à¸‡ */
+  #eventTable th,
+  #eventTable td {
+    font-size: 12px;
+    padding: 9px 8px;
+  }
+
+  #myModal .modal-content h3 {
+    font-size: 20px;
+  }
+
+  /* à¸ˆà¸¸à¸”à¸ªà¸–à¸²à¸™à¸°à¹ƒà¸™à¸•à¸²à¸£à¸²à¸‡ */
+  .blue-dot,
+  .orange-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    margin: 0 2px;
+  }
+
+  /* ðŸ’™ Booked */
+  .blue-dot {
+    background-color: #2196F3;
+    box-shadow: 0 0 3px rgba(33, 150, 243, 0.7);
+  }
+
+  /* ðŸŸ  Unavailable */
+  .orange-dot {
+    background-color: #ff9800;
+    box-shadow: 0 0 3px rgba(255, 152, 0, 0.7);
+  }
+
+  /* Tooltip */
+  .blue-dot:hover::after,
+  .orange-dot:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 140%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-line;
+    text-align: left;
+    min-width: 200px;
+    max-width: 280px;
+    word-wrap: break-word;
+    z-index: 20000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .blue-dot:hover::before,
+  .orange-dot:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
+  }
+
+  /* Legend à¹ƒà¸•à¹‰à¸•à¸²à¸£à¸²à¸‡ */
+  .legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #333;
+  }
+
+  .legend span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+   /* Hide GOOK SAN column (3rd column) */
+#eventTable th:nth-child(3),
+#eventTable td:nth-child(3) {
+  display: none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+  <div class="calendar">
+    <div class="calendar-header">
+      <div class="calendar-header-spacer" aria-hidden="true"></div>
+      <div class="month-picker-wrap" id="monthPickerWrap">
+        <button id="monthYear" class="month-year-btn" type="button" aria-label="Select month"></button>
+        <div class="month-picker-popover" id="monthPickerPopover" aria-hidden="true">
+          <div class="month-picker-header">
+            <button type="button" id="monthYearPrev" class="month-year-nav" aria-label="Previous year">&#10094;</button>
+            <span id="monthPickerYear"></span>
+            <button type="button" id="monthYearNext" class="month-year-nav" aria-label="Next year">&#10095;</button>
+          </div>
+          <div class="month-grid" id="monthGrid"></div>
+        </div>
+      </div>
+      <div class="calendar-nav-group">
+        <button id="prevMonth" class="nav-icon-btn" type="button" onclick="changeMonth(-1)" aria-label="Previous month">&#10094;</button>
+        <button id="nextMonth" class="nav-icon-btn" type="button" onclick="changeMonth(1)" aria-label="Next month">&#10095;</button>
+      </div>
+    </div>
+
+    <div class="calendar-days">
+      <div class="day-header">SUNDAY</div>
+      <div class="day-header">MONDAY</div>
+      <div class="day-header">TUESDAY</div>
+      <div class="day-header">WEDNESDAY</div>
+      <div class="day-header">THURSDAY</div>
+      <div class="day-header">FRIDAY</div>
+      <div class="day-header">SATURDAY</div>
+    </div>
+    <div class="calendar-days" id="calendarDays"></div>
+
+  </div>
+
+  <div class="spinner" id="spinner"></div>
+
+  <!-- Modal à¸•à¸²à¸£à¸²à¸‡ -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-toolbar">
+        <h3 id="modalText">Details</h3>
+        <div class="modal-actions">
+          <button type="button" class="refresh" title="Refresh">&#x21bb;</button>
+          <button type="button" class="close" title="Close">&times;</button>
+        </div>
+      </div>
+      <table id="eventTable">
+        <thead>
+          <tr>
+            <th>TIME</th>
+            <th>SOM SAN</th>
+            <th>GOOK SAN</th>
+            <th>POOKY SAN</th>
+            <th>L SAN</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr>
+      <td class="time-slot bold-text">07:00 - 07:30</td>
+      <td id="somSan_0700_0730" class="time-slot"></td>
+      <td id="gookSan_0700_0730" class="time-slot"></td>
+      <td id="pookySan_0700_0730" class="time-slot"></td>
+      <td id="lSan_0700_0730" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">07:30 - 08:00</td>
+      <td id="somSan_0730_0800" class="time-slot"></td>
+      <td id="gookSan_0730_0800" class="time-slot"></td>
+      <td id="pookySan_0730_0800" class="time-slot"></td>
+      <td id="lSan_0730_0800" class="time-slot"></td>
+    </tr>
+      <tr>
+      <td class="time-slot bold-text">08:00 - 08:30</td>
+      <td id="somSan_0800_0830" class="time-slot"></td>
+      <td id="gookSan_0800_0830" class="time-slot"></td>
+      <td id="pookySan_0800_0830" class="time-slot"></td>
+      <td id="lSan_0800_0830" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">08:30 - 09:00</td>
+      <td id="somSan_0830_0900" class="time-slot"></td>
+      <td id="gookSan_0830_0900" class="time-slot"></td>
+      <td id="pookySan_0830_0900" class="time-slot"></td>
+      <td id="lSan_0830_0900" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">09:00 - 09:30</td>
+      <td id="somSan_0900_0930" class="time-slot"></td>
+      <td id="gookSan_0900_0930" class="time-slot"></td>
+      <td id="pookySan_0900_0930" class="time-slot"></td>
+      <td id="lSan_0900_0930" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">09:30 - 10:00</td>
+      <td id="somSan_0930_1000" class="time-slot"></td>
+      <td id="gookSan_0930_1000" class="time-slot"></td>
+      <td id="pookySan_0930_1000" class="time-slot"></td>
+      <td id="lSan_0930_1000" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">10:00 - 10:30</td>
+      <td id="somSan_1000_1030" class="time-slot"></td>
+      <td id="gookSan_1000_1030" class="time-slot"></td>
+      <td id="pookySan_1000_1030" class="time-slot"></td>
+      <td id="lSan_1000_1030" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">10:30 - 11:00</td>
+      <td id="somSan_1030_1100" class="time-slot"></td>
+      <td id="gookSan_1030_1100" class="time-slot"></td>
+      <td id="pookySan_1030_1100" class="time-slot"></td>
+      <td id="lSan_1030_1100" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">11:00 - 11:30</td>
+      <td id="somSan_1100_1130" class="time-slot"></td>
+      <td id="gookSan_1100_1130" class="time-slot"></td>
+      <td id="pookySan_1100_1130" class="time-slot"></td>
+      <td id="lSan_1100_1130" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">11:30 - 12:00</td>
+      <td id="somSan_1130_1200" class="time-slot"></td>
+      <td id="gookSan_1130_1200" class="time-slot"></td>
+      <td id="pookySan_1130_1200" class="time-slot"></td>
+      <td id="lSan_1130_1200" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">12:00 - 12:30</td>
+      <td id="somSan_1200_1230" class="time-slot"></td>
+      <td id="gookSan_1200_1230" class="time-slot"></td>
+      <td id="pookySan_1200_1230" class="time-slot"></td>
+      <td id="lSan_1200_1230" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">12:30 - 13:00</td>
+      <td id="somSan_1230_1300" class="time-slot"></td>
+      <td id="gookSan_1230_1300" class="time-slot"></td>
+      <td id="pookySan_1230_1300" class="time-slot"></td>
+      <td id="lSan_1230_1300" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">13:00 - 13:30</td>
+      <td id="somSan_1300_1330" class="time-slot"></td>
+      <td id="gookSan_1300_1330" class="time-slot"></td>
+      <td id="pookySan_1300_1330" class="time-slot"></td>
+      <td id="lSan_1300_1330" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">13:30 - 14:00</td>
+      <td id="somSan_1330_1400" class="time-slot"></td>
+      <td id="gookSan_1330_1400" class="time-slot"></td>
+      <td id="pookySan_1330_1400" class="time-slot"></td>
+      <td id="lSan_1330_1400" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">14:00 - 14:30</td>
+      <td id="somSan_1400_1430" class="time-slot"></td>
+      <td id="gookSan_1400_1430" class="time-slot"></td>
+      <td id="pookySan_1400_1430" class="time-slot"></td>
+      <td id="lSan_1400_1430" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">14:30 - 15:00</td>
+      <td id="somSan_1430_1500" class="time-slot"></td>
+      <td id="gookSan_1430_1500" class="time-slot"></td>
+      <td id="pookySan_1430_1500" class="time-slot"></td>
+      <td id="lSan_1430_1500" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">15:00 - 15:30</td>
+      <td id="somSan_1500_1530" class="time-slot"></td>
+      <td id="gookSan_1500_1530" class="time-slot"></td>
+      <td id="pookySan_1500_1530" class="time-slot"></td>
+      <td id="lSan_1500_1530" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">15:30 - 16:00</td>
+      <td id="somSan_1530_1600" class="time-slot"></td>
+      <td id="gookSan_1530_1600" class="time-slot"></td>
+      <td id="pookySan_1530_1600" class="time-slot"></td>
+      <td id="lSan_1530_1600" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">16:00 - 16:30</td>
+      <td id="somSan_1600_1630" class="time-slot"></td>
+      <td id="gookSan_1600_1630" class="time-slot"></td>
+      <td id="pookySan_1600_1630" class="time-slot"></td>
+      <td id="lSan_1600_1630" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">16:30 - 17:00</td>
+      <td id="somSan_1630_1700" class="time-slot"></td>
+      <td id="gookSan_1630_1700" class="time-slot"></td>
+      <td id="pookySan_1630_1700" class="time-slot"></td>
+      <td id="lSan_1630_1700" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">17:00 - 17:30</td>
+      <td id="somSan_1700_1730" class="time-slot"></td>
+      <td id="gookSan_1700_1730" class="time-slot"></td>
+      <td id="pookySan_1700_1730" class="time-slot"></td>
+      <td id="lSan_1700_1730" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">17:30 - 18:00</td>
+      <td id="somSan_1730_1800" class="time-slot"></td>
+      <td id="gookSan_1730_1800" class="time-slot"></td>
+      <td id="pookySan_1730_1800" class="time-slot"></td>
+      <td id="lSan_1730_1800" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">18:00 - 18:30</td>
+      <td id="somSan_1800_1830" class="time-slot"></td>
+      <td id="gookSan_1800_1830" class="time-slot"></td>
+      <td id="pookySan_1800_1830" class="time-slot"></td>
+      <td id="lSan_1800_1830" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">18:30 - 19:00</td>
+      <td id="somSan_1830_1900" class="time-slot"></td>
+      <td id="gookSan_1830_1900" class="time-slot"></td>
+      <td id="pookySan_1830_1900" class="time-slot"></td>
+      <td id="lSan_1830_1900" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">19:00 - 19:30</td>
+      <td id="somSan_1900_1930" class="time-slot"></td>
+      <td id="gookSan_1900_1930" class="time-slot"></td>
+      <td id="pookySan_1900_1930" class="time-slot"></td>
+      <td id="lSan_1900_1930" class="time-slot"></td>
+    </tr>
+    <tr>
+      <td class="time-slot bold-text">19:30 - 20:00</td>
+      <td id="somSan_1930_2000" class="time-slot"></td>
+      <td id="gookSan_1930_2000" class="time-slot"></td>
+      <td id="pookySan_1930_2000" class="time-slot"></td>
+      <td id="lSan_1930_2000" class="time-slot"></td>
+    </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="calendar.js"></script>
+
+</body>
+
+</html>
+

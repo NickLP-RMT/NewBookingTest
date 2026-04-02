@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Resonac Interpreter Booking System</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="chart.min.js"></script>
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="manual.css?v=20260402-1">
+</head>
+<body>
+  <div class="navbar">
+    <div class="title">
+      <img src="images/Icon.png" alt="System Icon" class="navbar-title-icon">
+      <span>Resonac Interpreter Booking System</span>
+    </div>
+    <div class="navbar-right">
+      <button type="button" class="manual-btn" id="manualBtn" aria-label="Manual">Manual</button>
+      <div class="user-menu" id="userMenu">
+        <button type="button" class="user-info user-menu-btn" id="userInfo" aria-haspopup="true" aria-expanded="false"></button>
+        <div class="user-menu-dropdown" id="userMenuDropdown">
+          <button type="button" id="menuChangePassword">Change Password</button>
+          <button type="button" id="menuLogout">Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="workspace-shell">
+    <aside class="left-sidebar" aria-label="Main navigation">
+      <button type="button" id="navDashboard" class="side-nav-btn active" aria-label="Dashboard" title="Dashboard" data-tooltip="Dashboard">
+        <span class="side-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 18V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M10 18V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M16 18V8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M22 18V12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </button>
+      <button type="button" id="navMyBooking" class="side-nav-btn" aria-label="My Booking" title="My Booking" data-tooltip="My Booking">
+        <span class="side-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 6.5C4 5.67 4.67 5 5.5 5H11.5C12.33 5 13 5.67 13 6.5V19H5.5C4.67 19 4 18.33 4 17.5V6.5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M20 6.5C20 5.67 19.33 5 18.5 5H12.5C11.67 5 11 5.67 11 6.5V19H18.5C19.33 19 20 18.33 20 17.5V6.5Z" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </span>
+      </button>
+    </aside>
+
+    <div class="workspace-content">
+      <div class="main booking-focus" id="bookingView" style="display:none;">
+        <!-- My Bookings -->
+        <div class="mybooking">
+          <button class="new-booking-btn" onclick="openNewBookingModal()" aria-label="New Booking" title="New Booking">
+            <span class="new-booking-icon">＋</span>
+          </button>
+          <div class="mybooking-header">
+            <h3 id="myBookingTitle">My Bookings</h3>
+            <div class="nav-buttons">
+              <div class="my-date-picker-wrap" id="myDatePickerWrap">
+                <button type="button" id="myDateBtn" class="nav-btn my-date-btn" aria-label="Select date"></button>
+                <div class="my-date-picker-popover" id="myDatePickerPopover" aria-hidden="true">
+                  <div class="my-date-picker-header">
+                    <button type="button" id="myDateMonthPrev" class="my-date-month-nav" aria-label="Previous month">&#10094;</button>
+                    <span id="myDatePickerMonthYear"></span>
+                    <button type="button" id="myDateMonthNext" class="my-date-month-nav" aria-label="Next month">&#10095;</button>
+                  </div>
+                  <div class="my-date-weekdays">
+                    <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                  </div>
+                  <div class="my-date-grid" id="myDateGrid"></div>
+                  <div class="my-date-footer">
+                    <button type="button" id="myDateAllMonthBtn" class="my-date-all-month-btn">All this month</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="myBookingList"></div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar-box">
+          <iframe id="calendarFrame" src="calendar.html"></iframe>
+        </div>
+      </div>
+
+      <section id="dashboardView" class="dashboard-coming-soon" style="display:block;">
+        <div class="dashboard-panel">
+          <div class="dashboard-head">
+            <h2>Dashboard Overview</h2>
+          </div>
+
+          <div class="dashboard-top-layout">
+            <div class="dashboard-summary-col">
+              <div class="dashboard-card">
+                <h3>Total Bookings (This Month)</h3>
+                <p id="dashTotalMonth">0</p>
+                <span class="sub" id="dashMonthLabel">-</span>
+              </div>
+              <div class="dashboard-card">
+                <h3>Total Bookings (Today)</h3>
+                <p id="dashTotalToday">0</p>
+                <span class="sub" id="dashTodayLabel">-</span>
+              </div>
+              <div class="dashboard-card">
+                <h3>Active Interpreters</h3>
+                <p id="dashTotalInterpreter">3</p>
+                <span class="sub">SOM SAN • POOKY SAN • L SAN</span>
+              </div>
+            </div>
+
+            <div class="dashboard-interpreter-col">
+              <h3 class="dashboard-side-title">Today's Interpreter Jobs</h3>
+              <div class="interpreter-card-list">
+                <article class="interpreter-card">
+                  <img class="interpreter-avatar-img" src="images/SOMSAN.JPG" alt="SOM SAN">
+                  <div class="interpreter-info">
+                    <div class="interpreter-name">SOM SAN</div>
+                    <div class="interpreter-job" id="dashI001Job">Job Total: 0</div>
+                    <div class="interpreter-location" id="dashI001Loc">Work at: <span class="work-at-badge empty">Not set</span></div>
+                  </div>
+                </article>
+                <article class="interpreter-card">
+                  <img class="interpreter-avatar-img" src="images/POOKYSAN.JPG" alt="POOKY SAN">
+                  <div class="interpreter-info">
+                    <div class="interpreter-name">POOKY SAN</div>
+                    <div class="interpreter-job" id="dashI003Job">Job Total: 0</div>
+                    <div class="interpreter-location" id="dashI003Loc">Work at: <span class="work-at-badge empty">Not set</span></div>
+                  </div>
+                </article>
+                <article class="interpreter-card">
+                  <img class="interpreter-avatar-img" src="images/LSAN.JPG" alt="L SAN">
+                  <div class="interpreter-info">
+                    <div class="interpreter-name">L SAN</div>
+                    <div class="interpreter-job" id="dashI004Job">Job Total: 0</div>
+                    <div class="interpreter-location" id="dashI004Loc">Work at: <span class="work-at-badge empty">Not set</span></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-chart-section">
+            <div class="dashboard-chart-card">
+              <h3>
+                <span>Bookings per Day</span>
+                <div class="dash-month-picker-wrap" id="dashMonthPickerWrap">
+                  <button type="button" id="dashMonthPickerBtn" class="dashboard-month-btn" aria-label="Select month"></button>
+                  <div class="dash-month-picker-popover" id="dashMonthPickerPopover" aria-hidden="true">
+                    <div class="dash-month-picker-header">
+                      <button type="button" id="dashMonthYearPrev" class="dash-month-year-nav" aria-label="Previous year">&#10094;</button>
+                      <span id="dashMonthPickerYear"></span>
+                      <button type="button" id="dashMonthYearNext" class="dash-month-year-nav" aria-label="Next year">&#10095;</button>
+                    </div>
+                    <div class="dash-month-grid" id="dashMonthGrid"></div>
+                  </div>
+                </div>
+              </h3>
+              <div class="dashboard-chart-wrapper">
+                <canvas id="dashDailyChart"></canvas>
+              </div>
+            </div>
+
+            <div class="dashboard-chart-card">
+              <h3>Summary Bookings by Interpreter</h3>
+              <div class="dashboard-chart-wrapper-small">
+                <canvas id="dashInterpreterChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="loader"><div></div></div>
+
+  <!-- Modal All Bookings -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>My All Bookings</h3>
+        <span class="close" onclick="closeModal()">&times;</span>
+      </div>
+      <table id="myBookingTable">
+        <thead>
+          <tr>
+            <th>Title Meeting</th>
+            <th>Time</th>
+            <th>Interpreter</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- New Booking Modal -->
+  <div id="newBookingModal" class="modal">
+    <div class="modal-content" style="max-width:500px;">
+      <div class="modal-header">
+        <h3>New Booking</h3>
+        <span class="close" onclick="closeNewBookingModal()">&times;</span>
+      </div>
+      <form id="bookingForm">
+        <label>Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="interpreterId">Interpreter:</label>
+        <select id="interpreterId" name="interpreterId" required>
+          <option value="" disabled selected>Select date first</option>
+        </select>
+
+        <div class="time-row">
+          <div class="time-field">
+            <label for="timeFrom">Time From:</label>
+            <select id="timeFrom" name="startTime" required>
+              <option value="" disabled selected>HH:MM</option>
+              <option value="07:00">07:00</option>
+              <option value="07:30">07:30</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+              <option value="17:00">17:00</option>
+              <option value="17:30">17:30</option>
+              <option value="18:00">18:00</option>
+              <option value="18:30">18:30</option>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+            </select>
+          </div>
+
+          <div class="time-field">
+            <label for="timeTo">Time To:</label>
+            <select id="timeTo" name="endTime" required>
+              <option value="" disabled selected>HH:MM</option>
+              <option value="07:29">07:30</option>
+              <option value="07:59">08:00</option>
+              <option value="08:29">08:30</option>
+              <option value="08:59">09:00</option>
+              <option value="09:29">09:30</option>
+              <option value="09:59">10:00</option>
+              <option value="10:29">10:30</option>
+              <option value="10:59">11:00</option>
+              <option value="11:29">11:30</option>
+              <option value="11:59">12:00</option>
+              <option value="12:29">12:30</option>
+              <option value="12:59">13:00</option>
+              <option value="13:29">13:30</option>
+              <option value="13:59">14:00</option>
+              <option value="14:29">14:30</option>
+              <option value="14:59">15:00</option>
+              <option value="15:29">15:30</option>
+              <option value="15:59">16:00</option>
+              <option value="16:29">16:30</option>
+              <option value="16:59">17:00</option>
+              <option value="17:29">17:30</option>
+              <option value="17:59">18:00</option>
+              <option value="18:29">18:30</option>
+              <option value="18:59">19:00</option>
+              <option value="19:29">19:30</option>
+              <option value="19:59">20:00</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- âœ… à¹€à¸žà¸´à¹ˆà¸¡ Title Meeting -->
+        <label for="title">Title Meeting:</label>
+        <input type="text" id="title" name="title" required>
+        
+        <label for="location">Location:</label>
+        <select id="location" name="location" required>
+          <option value="" disabled selected>Select Location</option>
+          <option>Factory General Area</option>
+          <option>Work outside</option>
+          <option>MS-Team</option>
+          <option value="__SPECIFY__">Specify...</option>
+          <option>CHP-M201-Rajapruek</option>
+          <option>CHP-M202-Fuengfah</option>
+          <option>CHP-M203-Koson</option>
+          <option>CHP-M204-Lilawadee</option>
+          <option>CHP-M205-Training Center</option>
+          <option>CHP-M301-Anchan</option>
+          <option>CHP-M302-Supanniga</option>
+          <option>CHP-M303-Bualuang</option>
+          <option>G1P-Guest-Room</option>
+          <option>G1P-Meeting1</option>
+          <option>G1P-Meeting2</option>
+          <option>G1P-Meeting3</option>
+          <option>G1P-Meeting4</option>
+          <option>G1P-Meeting5</option>
+        </select>
+        <input type="text" id="locationSpecify" placeholder="Specify location" style="display:none;" autocomplete="off">
+
+        <button type="submit" class="booking-submit-btn">
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+
+<script src="dashboard.js?v=20260402-3"></script>
+<script src="manual.js?v=20260402-2"></script>
+
+</body>
+</html>
+
+
+
+
+
