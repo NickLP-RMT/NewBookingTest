@@ -1,4 +1,4 @@
-﻿const API_URL = "https://script.google.com/macros/s/AKfycbw8ZWi76fqqPWpefMsxJvFGf1bvbsutVr9wdwsPtsEq4xxqiL9tw-QpzgFbUnNoKmc/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbw8ZWi76fqqPWpefMsxJvFGf1bvbsutVr9wdwsPtsEq4xxqiL9tw-QpzgFbUnNoKmc/exec"; 
 
 function showLoader(){ document.getElementById("loader").style.display="flex"; }
 function hideLoader(){ document.getElementById("loader").style.display="none"; }
@@ -470,6 +470,7 @@ function buildDashboardInterpreterChart(monthCounts) {
 async function loadDashboardPanel() {
   if (dashLoaded) return;
   dashLoaded = true;
+  showLoader();
   try {
     const { ymd, ym } = dashLocalDateParts();
     const res = await fetch(`${API_URL}?page=listBookings`);
@@ -516,6 +517,8 @@ async function loadDashboardPanel() {
   } catch (err) {
     dashLoaded = false;
     Swal.fire("Error", `Cannot load dashboard data: ${err.message}`, "error");
+  } finally {
+    hideLoader();
   }
 }
 
@@ -1636,6 +1639,3 @@ bindWorkspaceSidebar();
 bindMyDatePicker();
 switchWorkspaceView("dashboard");
 console.log("âœ… Booking System Loaded:", new Date().toLocaleString());
-
-
-
