@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
   <meta charset="utf-8" />
@@ -373,13 +373,12 @@
         }
 
         localStorage.setItem("loggedInUser", JSON.stringify(data.user));
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
           title: "Success",
           html: "",
-          showConfirmButton: false,
-          timer: 650,
-          timerProgressBar: true,
+          confirmButtonText: "OK",
+          showConfirmButton: true,
           allowOutsideClick: false,
           allowEscapeKey: false,
           customClass: {
@@ -403,22 +402,5 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
