@@ -176,6 +176,18 @@ function bindUserMenu() {
   });
 }
 
+function renderHeaderUserInfo() {
+  const user = JSON.parse(localStorage.getItem("loggedInUser") || "null");
+  const userInfoEl = document.getElementById("userInfo");
+  if (!userInfoEl || !user) return;
+  userInfoEl.innerHTML = `
+    <span class="user-icon" aria-hidden="true"><span class="user-dot-head"></span><span class="user-dot-body"></span></span>
+    <span class="user-name">${user.username}</span>
+    <span class="user-role">${user.role}</span>
+    <span class="user-caret">▾</span>
+  `;
+}
+
 function switchWorkspaceView(view) {
   const isDashboard = view === "dashboard";
   if (!bookingView || !dashboardView || !navMyBooking || !navDashboard) return;
@@ -774,12 +786,7 @@ async function loadMyBookings(){
     Swal.fire("à¸à¸£à¸¸à¸“à¸² Login à¸à¹ˆà¸­à¸™","","warning").then(()=>window.location.href="index.html");
     return;
   }
-  document.getElementById("userInfo").innerHTML = `
-    <span class="user-icon" aria-hidden="true"><span class="user-dot-head"></span><span class="user-dot-body"></span></span>
-    <span class="user-name">${user.username}</span>
-    <span class="user-role">${user.role}</span>
-    <span class="user-caret">▾</span>
-  `;
+  renderHeaderUserInfo();
 
   try{
     showLoader();
@@ -1634,6 +1641,7 @@ async function cancelBooking(bookingId) {
 }
 
 bindCalendarBridge();
+renderHeaderUserInfo();
 bindUserMenu();
 bindWorkspaceSidebar();
 bindMyDatePicker();
