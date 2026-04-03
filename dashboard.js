@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbw8ZWi76fqqPWpefMsxJvFGf1bvbsutVr9wdwsPtsEq4xxqiL9tw-QpzgFbUnNoKmc/exec"; 
+﻿const API_URL = "https://script.google.com/macros/s/AKfycbw8ZWi76fqqPWpefMsxJvFGf1bvbsutVr9wdwsPtsEq4xxqiL9tw-QpzgFbUnNoKmc/exec"; 
 
 function showLoader(){ document.getElementById("loader").style.display="flex"; }
 function hideLoader(){ document.getElementById("loader").style.display="none"; }
@@ -1647,3 +1647,6 @@ bindWorkspaceSidebar();
 bindMyDatePicker();
 switchWorkspaceView("dashboard");
 console.log("âœ… Booking System Loaded:", new Date().toLocaleString());
+
+
+

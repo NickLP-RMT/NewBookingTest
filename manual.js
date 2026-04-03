@@ -18,12 +18,21 @@
           ]
         },
         {
-          key: "booking",
-          heading: "Booking",
+          key: "new-booking",
+          heading: "New Booking",
           image: "images/Booking-shot.jpg",
           items: [
             ["1) สร้างรายการจอง (New Booking)", "กดปุ่ม + เพื่อสร้างรายการจอง, ต้องเลือกวันที่ก่อน จึงสามารถเลือก Interpreter, Time, Title และ Location ได้"],
             ["2) ระบุข้อมูลจองล่าม", "ต้องเลือกวันที่ก่อน จึงสามารถเลือก Interpreter, Time, Title และ Location ได้<br>หมายเหตุ:<br>1. ระบบตรวจเวลาเริ่ม/สิ้นสุด และตรวจเงื่อนไข Work at เทียบกับโรงงาน<br>2. ในช่อง Location ,รายการ Specify... สามารถกรอกสถานที่เองได้"]
+          ]
+        },
+        {
+          key: "edit-delete-booking",
+          heading: "Edit / Delete Booking",
+          image: "images/EditDelete-shot.jpg",
+          items: [
+            ["1) แก้ไขรายการจอง (Edit)", "ใน My Bookings กดไอคอนแก้ไขเพื่อปรับ Interpreter, Time, Title หรือ Location แล้วกดบันทึก"],
+            ["2) ยกเลิกรายการจอง (Delete)", "ใน My Bookings กดไอคอนลบเพื่อยกเลิกรายการ ระบบจะให้ยืนยันก่อนบันทึกสถานะเป็น CANCELED"]
           ]
         },
         {
@@ -56,12 +65,21 @@
           ]
         },
         {
-          key: "booking",
-          heading: "Booking",
+          key: "new-booking",
+          heading: "New Booking",
           image: "images/Booking-shot.jpg",
           items: [
             ["1) Create Booking (New Booking)", "Click + to create a new booking, select date first, then fill Interpreter, Time, Title, and Location."],
             ["2) Enter Interpreter Booking Details", "You must select the date first before you can choose Interpreter, Time, Title, and Location.<br>Note:<br>1. The system validates start/end time and checks Work at conditions against factory location.<br>2. In the Location field, the Specify... option allows custom location input."]
+          ]
+        },
+        {
+          key: "edit-delete-booking",
+          heading: "Edit / Delete Booking",
+          image: "images/EditDelete-shot.jpg",
+          items: [
+            ["1) Edit Booking", "In My Bookings, click the Edit icon to update Interpreter, Time, Title, or Location, then save changes."],
+            ["2) Delete Booking", "In My Bookings, click the Delete icon to cancel the booking. The system asks for confirmation and updates status to CANCELED."]
           ]
         },
         {
@@ -94,12 +112,21 @@
           ]
         },
         {
-          key: "booking",
-          heading: "Booking",
+          key: "new-booking",
+          heading: "New Booking",
           image: "images/Booking-shot.jpg",
           items: [
             ["1) 新規予約 (New Booking)", "＋ボタンを押して予約を作成し、先に日付を選択してから Interpreter、Time、Title、Location を入力します。"],
             ["2) 通訳予約情報の入力", "先に日付を選択してから、Interpreter、Time、Title、Location を選択・入力できます。<br>注:<br>1. システムは開始/終了時刻を検証し、Work at 条件を工場ロケーションと照合します。<br>2. Location 欄の Specify... を選ぶと、場所を自由入力できます。"]
+          ]
+        },
+        {
+          key: "edit-delete-booking",
+          heading: "Edit / Delete Booking",
+          image: "images/EditDelete-shot.jpg",
+          items: [
+            ["1) 予約の編集 (Edit)", "My Bookings で Edit アイコンを押すと、Interpreter・Time・Title・Location を更新して保存できます。"],
+            ["2) 予約の削除 (Delete)", "My Bookings で Delete アイコンを押すと予約をキャンセルできます。確認後、ステータスは CANCELED に更新されます。"]
           ]
         },
         {
@@ -218,8 +245,12 @@
         body.querySelectorAll(".manual-lang-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
             const lang = String(btn.getAttribute("data-lang") || "th");
+            const prevIndex = state.pageIndex;
             state.lang = manualLang[lang] ? lang : "th";
-            state.pageIndex = 0;
+            const pages = (manualLang[state.lang] && Array.isArray(manualLang[state.lang].pages))
+              ? manualLang[state.lang].pages
+              : [];
+            state.pageIndex = Math.max(0, Math.min(prevIndex, Math.max(0, pages.length - 1)));
             rerenderBody("slide-in-right");
           });
         });
